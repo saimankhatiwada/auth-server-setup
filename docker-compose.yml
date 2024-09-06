@@ -29,13 +29,9 @@ services:
       KC_HTTP_ENABLED: "true"
       KC_HEALTH_ENABLED: "true"
       KC_HTTP_PORT: 8080
-      KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/conf/server.crt.pem
-      KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/conf/server.key.pem
     volumes:
       - ./.containers/identity:/opt/keycloak/data
       - ./.files/cipher-realm-export.json:/opt/keycloak/data/import/realm.json
-      - ./certs/server.crt.pem:/opt/keycloak/conf/server.crt.pem
-      - ./certs/server.key.pem:/opt/keycloak/conf/server.key.pem
     depends_on:
       - identity-db
     networks:
@@ -49,7 +45,6 @@ services:
       - 443:443
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/ssl:ro
     depends_on:
       - assgiment-app-idp
     networks:
