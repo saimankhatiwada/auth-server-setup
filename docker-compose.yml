@@ -16,7 +16,6 @@ services:
     container_name: Assgiment-App.Identity
     command: 
       - start
-      - --auto-build
       - --db=postgres
       - --import-realm
     environment:
