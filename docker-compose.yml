@@ -1,0 +1,65 @@
+services:
+  identity-db:
+    image: postgres:latest
+    container_name: Identity.Db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: 9d9dfbfbfdfd@S
+    volumes:
+      - ./.containers/database:/var/lib/postgresql/data
+    networks:
+      - authnetwork
+
+  assgiment-app-idp:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: Assgiment-App.Identity
+    command: 
+      - start
+      - --auto-build
+      - --db=postgres
+      - --import-realm
+    environment:
+      KC_DB_URL: jdbc:postgresql://identity-db/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: 9d9dfbfbfdfd@S
+      KC_HOSTNAME: auth.saimankhatiwada.com.np
+      KC_PROXY: edge
+      KEYCLOAK_ADMIN: satoox
+      KEYCLOAK_ADMIN_PASSWORD: 9d9dfbfbfdfd@S
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_PORT: 8080
+      KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/conf/server.crt.pem
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/conf/server.key.pem
+    volumes:
+      - ./.containers/identity:/opt/keycloak/data
+      - ./.files/cipher-realm-export.json:/opt/keycloak/data/import/realm.json
+      - ./certs/server.crt.pem:/opt/keycloak/conf/server.crt.pem
+      - ./certs/server.key.pem:/opt/keycloak/conf/server.key.pem
+    depends_on:
+      - identity-db
+    networks:
+      - authnetwork
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-reverse-proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/ssl:ro
+    depends_on:
+      - assgiment-app-idp
+    networks:
+      - authnetwork
+
+volumes:
+  identity-db_data:
+
+networks:
+  authnetwork:
+    name: authnetwork
+    driver: bridge
