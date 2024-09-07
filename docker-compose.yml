@@ -45,7 +45,6 @@ services:
       - 443:443
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/ssl:ro
     depends_on:
       - assgiment-app-idp
     networks:
